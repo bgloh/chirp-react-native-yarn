@@ -39,14 +39,14 @@ const config = 'FgFfOINe88YP1yQWrr8RDDMPW1vHAeSUhkDuAzmQQCtsTQAzj294NLfdTBP2CnM+
 
 export default class App extends Component<{}> {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      'initialised': false,
-      'status': 'Sleeping',
-      'data': '----------'
-    }
+  constructor() {
+    super();
+    this.state = {'initialised': false, 'status': 'Sleeping',
+                   'data': '?', dataSend : 100}
+    this.onPress = this.onPress.bind(this);
   }
+
+  
 
   async componentDidMount() {
     /*const response = await Permissions.check('microphone')
@@ -76,6 +76,13 @@ export default class App extends Component<{}> {
       (event) => {
         if (event.data.length) {
           this.setState({ data: event.data });
+          
+          // echo
+          this.setState({status : 'Received'});
+         // this.setState({ dataSend: event.data });
+          const echoData = parseInt(String(event.data),10);
+          ChirpConnect.send([echoData]);
+  
         }
       }
     )
@@ -101,26 +108,52 @@ export default class App extends Component<{}> {
   }
 
   onPress() {
-    ChirpConnect.send([0, 1, 2, 3, 4]);
+    //ChirpConnect.send([0, 1, 2, 3, 4]);
+    let data = this.state.dataSend;
+    ChirpConnect.send([data]);
+    // increase data
+    this.setState({ dataSend : this.state.dataSend + 1});  
   }
+
 
   render() {
     return (
       <View style={styles.container}>
+        <View style={{flex:0.1}}>
         <Text style={styles.welcome}>
           Welcome to Chirp!
         </Text>
+        </View>
+        
+        <View style={{flex:0.1}}>
         <Text style={styles.instructions}>
           {this.state.status}
         </Text>
-        <Text style={styles.instructions}>
-          {this.state.data}
-        </Text>
+        </View>
+        
+        <View style={{flex:0.6, 
+                      borderColor :'orange',
+                      borderRadius : 10,
+                      borderWidth : 1,
+                       justifyContent:'center',
+                       margin: 10,
+
+                       }}>
+          <Text style={styles.data}>
+            {this.state.data}
+          </Text>
+        </View>
+        
+        <View style={{flex:0.2, justifyContent:'center',
+                      margin:5,
+                      height : '100%',}}>
         <Button
           onPress={this.onPress}
           title='SEND'
           disabled={!this.state.initialised}
         />
+        </View>
+        
       </View>
     );
   }
@@ -129,19 +162,26 @@ export default class App extends Component<{}> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'flex-start',
+  //  alignItems: 'center',
     backgroundColor: '#F5FCFF',
   },
   welcome: {
     fontSize: 20,
     textAlign: 'center',
-    margin: 60,
+    margin: 10,
   },
   instructions: {
+    fontSize : 20,
     padding: 10,
     textAlign: 'center',
     color: '#333333',
-    marginBottom: 5,
+    margin: 5,
+  },
+
+  data: {
+    fontSize : 100,
+    textAlign: 'center',
+    color: '#333333',
   },
 });
